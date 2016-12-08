@@ -1,0 +1,88 @@
+{
+  "name": "devination",
+  "version": "0.0.1",
+  "description": "a cross plattform offline documentation browser",
+  "productName": "devination",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "elm": "elm make src/Main.elm --output elm.js || true",
+    "fix_mismatch": "./node_modules/.bin/electron-rebuild",
+    "ready": "elm make src/Main.elm --output elm.js && cp elm.js app && cp -r index.html main.js elm-stuff bootstrap.js assets app && mkdir -p app/docsets && npm install npm install --prefix app",
+    "elm:watch": "chokidar '**/*.elm' -c 'npm run elm'",
+    "watch": "npm run start & npm run elm:watch & wait",
+    "postinstall": "install-app-deps",
+    "pack-rpm": "npm run ready && build --linux rpm",
+    "pack-all": "npm run ready && build --dir",
+    "build-mac": "./node_modules/.bin/electron-packager ./app --platform mas --out dist",
+    "build-linux": "./node_modules/.bin/electron-packager ./app --platform linux --out dist",
+    "build-windows": "./node_modules/.bin/electron-packager ./app --platform win32 --out dist",
+    "dist": "npm run ready && build -mwl --x64",
+    "release": "build -mwl --publish always"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:devination-docs/devination.git"
+  },
+  "keywords": [],
+  "author": "Joris Morger <jorismorger@gmail.com> (http://github.com/JorisM/)",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/devination-docs/devination/issues"
+  },
+  "homepage": "http://devination.gitlab.io/",
+  "devDependencies": {
+    "chokidar": "^1.6.0",
+    "chokidar-cli": "^1.2.0",
+    "electron-builder": "^10.6.1",
+    "electron-packager": "^8.3.0",
+    "electron": "^1.4.10",
+    "electron-rebuild": "^1.4.0",
+    "electron-settings": "^2.2.2"
+  },
+  "dependencies": {
+    "electron-auto-updater": "^0.7.0",
+    "electron-settings": "^2.2.2",
+    "materialize-css": "^0.97.6",
+    "request": "^2.72.0",
+    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master#3.15.0",
+    "tar.gz": "^1.0.5"
+  },
+  "build": {
+    "app-id": "com.electron.devination-app",
+    "category": "public.app-category.developers",
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "publish": [
+        "github"
+      ]
+    },
+    "win": {
+      "iconUrl": "http://eatodo.s3.amazonaws.com/icon.ico",
+      "publish": [
+        "github"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
+      "publish": [
+        "github"
+      ]
+    }
+  }
+}
