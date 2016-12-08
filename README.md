@@ -41,13 +41,17 @@ make your have the following folders in the root of the project:
 - [ ] After downloading package, get actual name of package on FS and return it (bootstrap.js, see node-targz issue #xx for details regarding callback)
 - [ ] Add option to reset to default settings and remove all installed packages
 - [ ] Add option to download specific version of documentation
-- [ ] Add option to update documentation (including checking if update is available)
+- [ ] Add option to update docsets (including checking if update is available)
 - [ ] Make sure paths are cleaned (no traversal attacks)
-- [ ] Add link to Dash
-- [ ] Create github page
-- [ ] Windows build
-- [ ] OSX build
-- [ ] Support different unix flavors/add to repos
-- [ ] Migrate from gitlab to github? Mirror?
-- [ ] Create documentation/FAQ
+- [X] Add link to Dash
+- [x] Create github page
+- [X] Windows build
+- [X] OSX build
+- [ ] Signed OSX and Windows Builds
+- [X] Support different unix flavors
+- [ ] Add to linux repos
+- [ ] Migrate from gitlab to github
+- [X] Create documentation/FAQ
+- [ ] improve Documentation/FAQ
+
 - [ ] Add screenshot
