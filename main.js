@@ -73,14 +73,13 @@ const UPDATE_SERVER_HOST = "https://devination-releases.herokuapp.com/"
 
 class AppUpdater {
   constructor(window) {
-    notify(window, "A new update is ready to install", `Version xyz is downloaded and will be automatically installed on Quit`)
-    log("updater runnin" + os.platform());
-    // if (os.platform() === "linux") {
-    //   return
-    // }
+    if (os.platform() === "linux") {
+      log("auto update on linux not supported yet");
+      return
+    }
 
     function log(s) {
-      console.log(s);
+      console.log("updater log: " + s);
     }
 
     const version = app.getVersion()
@@ -88,8 +87,9 @@ class AppUpdater {
       log("A new update is available")
     })
     autoUpdater.addListener("update-downloaded", (event, releaseNotes, releaseName, releaseDate, updateURL) => {
-      notify(window, "A new update is ready to install", `Version ${releaseName} is downloaded and will be automatically installed on Quit`)
+      notify("A new update is ready to install", `Version ${releaseName} is downloaded and will be automatically installed on Quit`)
     })
+    
     autoUpdater.addListener("error", (error) => {
       log(error)
     })
@@ -103,11 +103,11 @@ class AppUpdater {
 
     window.webContents.once("did-frame-finish-load", (event) => {
       autoUpdater.checkForUpdates()
-      console.log("checked updater")
     })
   }
 }
 
-function notify(win, title, message) {
-  win.webContents.send("notify", title, message)
+function notify(title, message) {
+  var js = 'new Notification("' + title + '", {body: "' + message + '"})'
+  win.webContents.executeJavaScript(js);
 }

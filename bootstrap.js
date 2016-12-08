@@ -9,7 +9,7 @@ var path = require('path');
 const settings = require('electron-settings');
 const remote = require('electron').remote;
 const app = remote.app;
-
+const ipcRenderer = require("electron").ipcRenderer
 
 var sqlite3 = require("sqlite3").verbose();
 function getDB(language) {
