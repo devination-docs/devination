@@ -18,7 +18,7 @@
     "build-linux": "./node_modules/.bin/electron-packager ./app --platform linux --out dist",
     "build-windows": "./node_modules/.bin/electron-packager ./app --platform win32 --out dist",
     "dist": "npm run ready && build -mwl --x64",
-    "release": "npm run ready && build -mwl --publish always"
+    "release": "npm run ready && build -wl --publish always"
   },
   "repository": {
     "type": "git",
