@@ -41,12 +41,11 @@ once: `npm i -g chokidar-cli`
 
 `npm run watch`
 
-
 ### Todo
 
 - [x] Save installed packages to preferences
-- [ ] After downloading package, get actual name of package on FS and return it (bootstrap.js, see node-targz issue #xx for details regarding callback)
-- [ ] Add option to reset to default settings and remove all installed packages
+- [X] After downloading package, get actual name of package on FS and return it (solved, although a bit nasty)
+- [x] Add option to reset to default settings and remove all installed packages
 - [ ] Add option to download specific version of documentation
 - [ ] Add option to update docsets (including checking if update is available)
 - [ ] Make sure paths are cleaned (no traversal attacks)

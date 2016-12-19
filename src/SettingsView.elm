@@ -113,7 +113,9 @@ topBar model =
 
 feedsView : Model -> Html Msg
 feedsView model =
-    div [] [ button [ Html.Events.onClick ResetSettings ] [ Html.text "Reset Settings" ] ]
+    div 
+        [ Html.Attributes.class "reset-button" ] 
+        [ button [ Html.Events.onClick ResetSettings, Html.Attributes.class "btn" ] [ Html.text "Reset Settings" ] ]
 
 
 settingsView : Model -> Html Msg

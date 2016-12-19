@@ -1,6 +1,6 @@
 const electron = require('electron');
 // Module to control application life.
-const {app, globalShortcut, autoUpdater} = require('electron')
+const {app, globalShortcut, autoUpdater, dialog} = require('electron')
 // Module to create native browser window.
 const {BrowserWindow} = electron;
 const os = require('os');
@@ -11,8 +11,6 @@ const remote = electron.remote;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
-
-const dialog = require('electron').dialog
 
 app.setAsDefaultProtocolClient('devination')
 
@@ -30,6 +28,17 @@ function createWindow() {
   globalShortcut.register('Ctrl+Alt+Shift+I', () => {
     win.webContents.openDevTools();
   })
+
+  win.on('uncaughtException', function (error) {
+    console.log("asdfasdfasdfasdf", error);
+    dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + error }, function (buttonIndex) { });
+  });
+
+  app.on('uncaughtException', function (error) {
+    console.log("asdfasdfasdfasdf", error);
+    dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + error }, function (buttonIndex) { });
+  });
+
 
   new AppUpdater(win)
 

@@ -67,13 +67,12 @@ functionsBar model =
             :: (List.map (nameView model) model.cache)
 
 
-installedLanguagesSelector : Model -> InstalledLanguage -> Html Msg
-installedLanguagesSelector model language =
+installedLanguagesSelector : Bool -> Model -> InstalledLanguage -> Html Msg
+installedLanguagesSelector isTopbar model language =
     Html.li 
         [ Html.Events.onClick (UpdateSelectedLanguage language), class "collection-item", class <| isLanguageSelected model language ]
-        [ Html.div [ Html.Attributes.class "icon", Html.Attributes.style [ ( "background", "url(data:image/gif;base64," ++ language.icon2x ++ ")" ) ] ] []
-        -- , Html.text <| removeDocsetAppendix language.name ]
-        ]
+        ([ Html.div [ Html.Attributes.class "icon", Html.Attributes.style [ ( "background", "url(data:image/gif;base64," ++ language.icon2x ++ ")" ) ] ] []
+        ] ++ if not isTopbar then [ Html.text language.name ] else [])
 
 chooseHeader : Html Msg
 chooseHeader =
@@ -97,7 +96,7 @@ docsView model =
         Nothing ->
             [ Html.ul
                 [ class "collection with-header" ]
-                (chooseHeader :: (List.map (installedLanguagesSelector model) <| Maybe.withDefault [] <| Maybe.map .installedLanguages model.settings ))
+                (chooseHeader :: (List.map (installedLanguagesSelector False model) <| Maybe.withDefault [] <| Maybe.map .installedLanguages model.settings ))
             ]
 
 
@@ -121,7 +120,7 @@ topBar model =
                     [ Html.a [ Html.Events.onClick OpenSettings ] [ Html.text "Settings" ], Html.text model.error ]
                 , Html.ul
                     [ class "right" ]
-                    (List.map (installedLanguagesSelector model) <| Maybe.withDefault [] <| Maybe.map .installedLanguages model.settings)
+                    (List.map (installedLanguagesSelector True model) <| Maybe.withDefault [] <| Maybe.map .installedLanguages model.settings)
                 ]
             ]
         ]

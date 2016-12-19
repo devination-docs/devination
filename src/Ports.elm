@@ -28,3 +28,5 @@ port resetToDefaults : String -> Cmd msg
 port setSettings : (Maybe Settings) -> Cmd msg
 
 port settingsResult : (Settings -> msg) -> Sub msg
+
+port showError : String -> Cmd msg

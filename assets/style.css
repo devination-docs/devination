@@ -23,12 +23,17 @@ webview {
   padding-bottom: 14px;
   background-color: #e4e4e4 !important;
 }
-.active {
-  background-color: #3498db !important;
+nav ul li.active {
+  background-color: #3498db;
+  height: 100%;
 }
 
 .side-nav.fixed a {
   overflow: hidden;
+}
+
+.reset-button {
+  margin-top: 30px;
 }
 
 /*spinner effects*/

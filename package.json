@@ -1,6 +1,6 @@
 {
   "name": "devination",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "a cross plattform offline documentation browser",
   "productName": "devination",
   "main": "main.js",
@@ -32,19 +32,19 @@
   },
   "homepage": "http://devination.gitlab.io/",
   "devDependencies": {
-    "chokidar": "^1.6.0",
+    "chokidar": "^1.6.1",
     "chokidar-cli": "^1.2.0",
-    "electron-builder": "^10.6.1",
-    "electron-packager": "^8.3.0",
-    "electron": "^1.4.10",
+    "electron-builder": "^10.8.1",
+    "electron-packager": "^8.4.0",
+    "electron": "^1.4.12",
     "electron-rebuild": "^1.4.0",
     "electron-settings": "^2.2.2"
   },
   "dependencies": {
-    "electron-auto-updater": "^0.7.0",
+    "electron-auto-updater": "^0.7.2",
     "electron-settings": "^2.2.2",
-    "materialize-css": "^0.97.6",
-    "request": "^2.72.0",
+    "materialize-css": "^0.97.8",
+    "request": "^2.79.0",
     "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master#3.15.0",
     "tar.gz": "^1.0.5"
   },

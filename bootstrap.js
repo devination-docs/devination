@@ -10,8 +10,12 @@ const settings = require('electron-settings');
 const remote = require('electron').remote;
 const app = remote.app;
 const ipcRenderer = require("electron").ipcRenderer
-
+var tar = require('tar');
+var fstream = require('fstream');
+var zlib = require('zlib');
 var sqlite3 = require("sqlite3").verbose();
+const {dialog} = require('electron').remote;
+
 function getDB(language) {
     var file = path.join(app.getPath('userData'), "/docsets/" + language + "/Contents/Resources/docSet.dsidx");
     var exists = fs.existsSync(file);
@@ -31,6 +35,10 @@ let container = document.getElementById('container')
 // and keep a reference for communicating with the app
 let devination = Elm.Main.fullscreen();
 
+devination.ports.showError.subscribe(function (error) {
+    dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + error }, function (buttonIndex) { });
+});
+
 devination.ports.search.subscribe(function (options) {
     var cb = function (result) {
         devination.ports.searchResult.send(result);
@@ -45,6 +53,7 @@ function getCache(language, term, cb) {
             var cache = [];
             var query = "";
             db.get("SELECT count(*) as zdash FROM sqlite_master WHERE type='table' AND name='searchIndex'", [], function (err, s) {
+                dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + err }, function (buttonIndex) { });
                 if (!s.zdash) {
                     query = "SELECT ztoken.ztokenname as name, ztokentype.ztypename as kind, zfilepath.zpath as path, ztokenmetainformation.zanchor as id "
                         + "FROM ztoken "
@@ -64,30 +73,30 @@ function getCache(language, term, cb) {
     }
 }
 
+
 devination.ports.download.subscribe(function (info) {
     var url = info[1]
     var language = info[0]
     var read = request.get(url);
     var write = targz().createWriteStream(path.join(app.getPath('userData'), "/docsets/"));
+    var i = 0;
+    var onFileName = function (path) {
+        var s =  
+            { name : language
+            , logo : ""
+            , fsName : path
+            // fsName: foundPath
+            , icon: info[2]
+            , icon2x: info[3]
+            }
+        devination.ports.downloadResult.send(s);
+    };
+
+    write.on('entry', function(entry){
+        if(i === 0) { onFileName(entry.path) }
+        i++;
+    });
     var piped = read.pipe(write);
-    // write.on('end', function() {
-    //     console.log("end")
-    // //    this callback does not work
-    // // https://github.com/alanhoff/node-tar.gz/issues/40
-    //     // var files = fs.readdirSync("docsets/" + language + "/");
-    //     // var foundPath = files[0];
-    // })
-    console.log(url);
-    console.log(path.join(app.getPath('userData'), "/docsets/"));
-    var s =  
-        { name : language
-        , logo : ""
-        , fsName : language + ".docset"
-        // fsName: foundPath
-        , icon: info[2]
-        , icon2x: info[3]
-        }
-    devination.ports.downloadResult.send(s);
 });
 
 

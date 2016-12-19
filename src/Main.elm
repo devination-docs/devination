@@ -148,7 +148,7 @@ update msg model =
             ( model, batch [ getSettings "" ] )
 
         FailRequest err ->
-            ( { model | error = Debug.log "error: " <| errorToString err }, Cmd.none )
+            ( { model | error = errorToString err }, batch [ showError (errorToString err) ] )
 
         SettingsResult settings ->
             -- ( { model | feeds = [] }, Cmd.none )
