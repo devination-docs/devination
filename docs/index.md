@@ -5,6 +5,8 @@ show_downloads: false
 google_analytics: UA-89262232-1
 ---
 
+*disclaimer: devination is in early alpha version, do not use yet*
+
 devination is a documentation browser for different programming languages similar to Dash (https://kapeli.com/dash). The goal is to provide a modern interface to browse documentation on multiple plattforms, especially targeting Linux and Windows.
 
 ![Screenshot devination](https://devination-docs.github.io/devination/devination.png)
