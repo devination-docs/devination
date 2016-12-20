@@ -56,7 +56,7 @@ once: `npm i -g chokidar-cli`
 - [ ] Signed OSX and Windows Builds
 - [X] Support different unix flavors
 - [ ] Add to linux repos
-- [ ] Migrate from gitlab to github
+- [X] Migrate from gitlab to github
 - [X] Create documentation/FAQ
 - [ ] improve Documentation/FAQ
 - [ ] Add screenshot
