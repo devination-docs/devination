@@ -13,7 +13,8 @@ devination is a documentation browser for different programming languages simila
 
 ## Download
 
-https://github.com/devination-docs/devination/releases 
+[Devination Releases](https://github.com/devination-docs/devination/releases)
+
 
 ## Contribute
 
@@ -22,4 +23,4 @@ Help/Suggestions regarding graphics/UX/development are most welcome.
 
 visit the repository here for more information:
 
-https://github.com/devination-docs/devination/
+[Devination Github Repo](https://github.com/devination-docs/devination/)
