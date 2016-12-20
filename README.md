@@ -59,5 +59,4 @@ once: `npm i -g chokidar-cli`
 - [ ] Migrate from gitlab to github
 - [X] Create documentation/FAQ
 - [ ] improve Documentation/FAQ
-
 - [ ] Add screenshot

@@ -53,7 +53,9 @@ function getCache(language, term, cb) {
             var cache = [];
             var query = "";
             db.get("SELECT count(*) as zdash FROM sqlite_master WHERE type='table' AND name='searchIndex'", [], function (err, s) {
-                dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + err }, function (buttonIndex) { });
+                if(err !== null) {
+                  dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + err }, function (buttonIndex) { });
+                }
                 if (!s.zdash) {
                     query = "SELECT ztoken.ztokenname as name, ztokentype.ztypename as kind, zfilepath.zpath as path, ztokenmetainformation.zanchor as id "
                         + "FROM ztoken "
