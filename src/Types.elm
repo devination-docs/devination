@@ -35,6 +35,7 @@ type alias Model =
     , showSpinner : Bool
     , error : String
     , settings : Maybe Settings
+    , downloading: Bool
     }
 
 

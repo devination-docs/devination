@@ -16,7 +16,8 @@ var zlib = require('zlib');
 var sqlite3 = require("sqlite3").verbose();
 const {dialog} = require('electron').remote;
 
-function getDB(language) {
+function getDB(l) {
+    var language = path.normalize(l).replace(/^(\.\.[\/\\])+/, '')
     var file = path.join(app.getPath('userData'), "/docsets/" + language + "/Contents/Resources/docSet.dsidx");
     var exists = fs.existsSync(file);
     // console.log(file);
@@ -80,19 +81,23 @@ devination.ports.download.subscribe(function (info) {
     var url = info[1]
     var language = info[0]
     var read = request.get(url);
-    var write = targz().createWriteStream(path.join(app.getPath('userData'), "/docsets/"));
+    var s = {};
     var i = 0;
+    var write = targz().createWriteStream(path.join(app.getPath('userData'), "/docsets/"));
+    
     var onFileName = function (path) {
-        var s =  
+        s =  
             { name : language
             , logo : ""
             , fsName : path
-            // fsName: foundPath
             , icon: info[2]
             , icon2x: info[3]
             }
-        devination.ports.downloadResult.send(s);
     };
+
+    write.on('end', function(entry){
+        devination.ports.downloadResult.send(s);
+    });
 
     write.on('entry', function(entry){
         if(i === 0) { onFileName(entry.path) }
@@ -102,7 +107,8 @@ devination.ports.download.subscribe(function (info) {
 });
 
 
-devination.ports.removeDocset.subscribe(function (language) {
+devination.ports.removeDocset.subscribe(function (l) {
+    var language = path.normalize(l).replace(/^(\.\.[\/\\])+/, '')
     deleteFolderRecursive(path.join(app.getPath('userData'), "/docsets/" + language));
     devination.ports.removeDocsetResult.send(language);
 });

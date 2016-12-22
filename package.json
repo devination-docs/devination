@@ -46,7 +46,7 @@
     "materialize-css": "^0.97.8",
     "request": "^2.79.0",
     "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master#3.15.0",
-    "tar.gz": "^1.0.5"
+    "tar.gz": "git://github.com/JorisM/node-tar.gz.git#patch-1"
   },
   "build": {
     "app-id": "com.electron.devination-app",

@@ -45,6 +45,7 @@ defaultModel =
     , isSettingsView = False
     , showSpinner = False
     , error = ""
+    , downloading = False
     , settings = Nothing
     }
 
@@ -107,7 +108,7 @@ update msg model =
             ( { model | filteredAvailableLanguages = List.filter (\x -> startsWith (toLower t) (toLower x.name)) model.availableLanguages }, Cmd.none )
 
         Download l ->
-            ( model, download (l.name, toDownloadUrl model l, l.icon, l.icon2x) )
+            ( { model | downloading = True }, download (l.name, toDownloadUrl model l, l.icon, l.icon2x) )
 
         RemoveDocset l ->
             ( model, removeDocset l.fsName )
@@ -126,7 +127,7 @@ update msg model =
                 ns = Maybe.map (\settings -> { settings | installedLanguages = m::settings.installedLanguages }) s
                 nm = { model | settings = ns }
             in 
-                (nm, setSettings nm.settings )
+                ({ nm | downloading = False}, setSettings nm.settings )
 
         UpdateAvailableLanguages lss ->
             let
@@ -155,7 +156,7 @@ update msg model =
             ( { model | settings = Just settings }, batch [ getOfficialLanguages settings.officialFeed, getUserContributedLanguages (settings.userFeed ++ "index.json") ] )
     
         ResetSettings ->
-            ( model, batch [ resetToDefaults "" ] )
+            ( { model | settings = Nothing, language = Nothing } , batch [ resetToDefaults "", showError "Please restart the app" ] )
 
         GetSettings s ->
             ( model, Cmd.none )

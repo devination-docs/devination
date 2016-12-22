@@ -1,3 +1,4 @@
+
 module SettingsView exposing (..)
 
 import Types exposing (..)
@@ -110,12 +111,20 @@ topBar model =
             ]
         ]
 
+downloadStatus s = 
+    if s then
+        Html.text "Downloading..."
+    else
+        Html.text ""
 
 feedsView : Model -> Html Msg
 feedsView model =
     div 
         [ Html.Attributes.class "reset-button" ] 
-        [ button [ Html.Events.onClick ResetSettings, Html.Attributes.class "btn" ] [ Html.text "Reset Settings" ] ]
+        [ button 
+            [ Html.Events.onClick ResetSettings, Html.Attributes.class "btn" ] 
+            [ Html.text "Reset Settings" ]
+        , downloadStatus model.downloading ]
 
 
 settingsView : Model -> Html Msg

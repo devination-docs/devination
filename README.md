@@ -48,7 +48,8 @@ once: `npm i -g chokidar-cli`
 - [x] Add option to reset to default settings and remove all installed packages
 - [ ] Add option to download specific version of documentation
 - [ ] Add option to update docsets (including checking if update is available)
-- [ ] Make sure paths are cleaned (no traversal attacks)
+- [ ] Ability to download custom packages (hackage for example)
+- [X] Make sure paths are cleaned (no traversal attacks)
 - [X] Add link to Dash
 - [x] Create github page
 - [X] Windows build
@@ -59,4 +60,7 @@ once: `npm i -g chokidar-cli`
 - [X] Migrate from gitlab to github
 - [X] Create documentation/FAQ
 - [ ] improve Documentation/FAQ
-- [ ] Add screenshot
+- [X] Add screenshot
+- [ ] Add option to start app in debug mode --> compile with --debug flag in elm so that user can send report
+- [ ] Add keyboard shortcuts
+- [ ] Select docset by typing i.e. "haskell:" or "haskell<tab>"
