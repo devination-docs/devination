@@ -14,7 +14,9 @@ _screenshot here_
 ## Contribute
 
 If you would like to contribute, please look at the todo list below. 
-Help/Suggestions regarding graphics or UX are most welcome.
+Help/Suggestions regarding graphics or UX are most welcome. Get in touch on twitter @jorisdamian
+
+Also, check: https://github.com/devination-docs/devination/wiki/Todo
 
 ### Compilation
 
@@ -40,27 +42,3 @@ make your have the following folders in the root of the project:
 once: `npm i -g chokidar-cli`
 
 `npm run watch`
-
-### Todo
-
-- [x] Save installed packages to preferences
-- [X] After downloading package, get actual name of package on FS and return it (solved, although a bit nasty)
-- [x] Add option to reset to default settings and remove all installed packages
-- [ ] Add option to download specific version of documentation
-- [ ] Add option to update docsets (including checking if update is available)
-- [ ] Ability to download custom packages (hackage for example)
-- [X] Make sure paths are cleaned (no traversal attacks)
-- [X] Add link to Dash
-- [x] Create github page
-- [X] Windows build
-- [X] OSX build
-- [ ] Signed OSX and Windows Builds
-- [X] Support different unix flavors
-- [ ] Add to linux repos
-- [X] Migrate from gitlab to github
-- [X] Create documentation/FAQ
-- [ ] improve Documentation/FAQ
-- [X] Add screenshot
-- [ ] Add option to start app in debug mode --> compile with --debug flag in elm so that user can send report
-- [ ] Add keyboard shortcuts
-- [ ] Select docset by typing i.e. "haskell:" or "haskell<tab>"

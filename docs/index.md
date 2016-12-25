@@ -2,7 +2,6 @@
 title: Devination
 description: devination is a documentation browser similar to dash
 show_downloads: false
-google_analytics: UA-89262232-1
 ---
 
 *disclaimer: devination is in early alpha version, do not use yet*
