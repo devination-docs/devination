@@ -6,6 +6,7 @@ import Html.Events exposing (onClick)
 import Html exposing (Html, button, div, text, p, iframe)
 import Html.Attributes exposing (class)
 import Json.Decode as Json exposing (Decoder, string, list)
+import Helper exposing (getBasePath)
 
 
 -- todo: handle special case of ruby on rails
@@ -140,7 +141,8 @@ settingsView model =
                 [ class "row" ]
                 [ div
                     [ class "col s8" ]
-                    [ feedsView model
+                    [ Html.text (getBasePath model)
+                    , feedsView model
                     , availableLanguagesView model
                     ]
                 ]

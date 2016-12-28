@@ -6,7 +6,7 @@ import Html exposing (Html, button, div, text, p, iframe)
 import Html.Attributes exposing (class)
 import Json.Decode as Json exposing (Decoder, string, list, map2)
 import String exposing (split)
-
+import Helper exposing (getBasePath)
 
 isSelected : Model -> SearchIndex -> String
 isSelected m s =
@@ -78,9 +78,6 @@ chooseHeader : Html Msg
 chooseHeader =
     Html.li [ class "collection-header" ] [ Html.a [ Html.Events.onClick OpenSettings ] [ Html.text "Click here to open settings and download a docset" ] ]
 
-
-getBasePath m = 
-    Maybe.withDefault "" <| Maybe.map .dataPath m.settings
 
 docsView : Model -> List (Html Msg)
 docsView model =

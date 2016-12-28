@@ -100,8 +100,7 @@ devination.ports.download.subscribe(function (info) {
     });
 
     write.on('entry', function(entry){
-        if(i === 0) { onFileName(entry.path) }
-        i++;
+        if(i === 0) { onFileName(entry.path); i++; }
     });
     var piped = read.pipe(write);
 });
