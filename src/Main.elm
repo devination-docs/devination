@@ -22,6 +22,7 @@ subscriptions model =
         , removeDocsetResult RemoveDocsetResult
         , settingsResult SettingsResult
         , extractionStart ExtractionStart
+        , externalSearch ExternalSearch
         ]
 
 
@@ -103,6 +104,14 @@ update msg model =
             case model.language of
                 Just l ->
                     ( model, search ( l.fsName, t ) )
+
+                Nothing ->
+                    ( model, Cmd.none )
+        
+        ExternalSearch term ->
+            case model.language of
+                Just l ->
+                    ( model, search ( l.fsName, term ) )
 
                 Nothing ->
                     ( model, Cmd.none )

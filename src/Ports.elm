@@ -32,3 +32,5 @@ port settingsResult : (Settings -> msg) -> Sub msg
 port extractionStart : (String -> msg) -> Sub msg
 
 port showError : String -> Cmd msg
+
+port externalSearch: (String -> msg) -> Sub msg

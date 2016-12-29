@@ -24,6 +24,8 @@ type Msg
     | SettingsResult Settings
     | ResetSettings
     | ExtractionStart String
+    | ExternalSearch String
+
 
 type alias Model =
     { cache : List SearchIndex
