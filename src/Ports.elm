@@ -29,4 +29,6 @@ port setSettings : (Maybe Settings) -> Cmd msg
 
 port settingsResult : (Settings -> msg) -> Sub msg
 
+port extractionStart : (String -> msg) -> Sub msg
+
 port showError : String -> Cmd msg

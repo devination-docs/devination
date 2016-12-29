@@ -50,8 +50,13 @@
     "v8_random_seed": 0,
     "v8_use_snapshot": "true",
     "want_separate_host_toolset": 0,
-    "nodedir": "/home/joris/.node-gyp/6.9.2",
+    "nodedir": "/home/joris/.electron-gyp/.node-gyp/iojs-1.4.12",
     "copy_dev_lib": "true",
-    "standalone_static_library": 1
+    "standalone_static_library": 1,
+    "disturl": "https://atom.io/download/electron",
+    "target": "1.4.12",
+    "runtime": "electron",
+    "platform": "win32",
+    "build_from_source": "true"
   }
 }

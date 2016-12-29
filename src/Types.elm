@@ -23,6 +23,7 @@ type Msg
     | GetSettings String
     | SettingsResult Settings
     | ResetSettings
+    | ExtractionStart String
 
 type alias Model =
     { cache : List SearchIndex
@@ -35,9 +36,16 @@ type alias Model =
     , showSpinner : Bool
     , error : String
     , settings : Maybe Settings
-    , downloading: Bool
+    , downloadStatus: DownloadStatus
     }
 
+
+type DownloadAction = Downloading | Extraction | NoDownload
+
+type alias DownloadStatus =
+    { action: DownloadAction
+    , language: String
+    }
 
 type alias Settings =
     { officialFeed : Feed
@@ -161,6 +169,6 @@ asInternals =
 type alias SearchIndex =
     { id : Id
     , name : Name
-    , kind : Kind
+    -- , kind : Kind
     , path : Path
     }

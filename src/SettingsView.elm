@@ -113,10 +113,13 @@ topBar model =
         ]
 
 downloadStatus s = 
-    if s then
-        Html.text "Downloading..."
-    else
-        Html.text ""
+    case s.action of
+        Downloading -> 
+            Html.text ("Downloading " ++ s.language ++ "...")
+        Extraction -> 
+            Html.text ("Extracting " ++ s.language ++ "...")
+        NoDownload -> Html.text ""
+
 
 feedsView : Model -> Html Msg
 feedsView model =
@@ -125,7 +128,7 @@ feedsView model =
         [ button 
             [ Html.Events.onClick ResetSettings, Html.Attributes.class "btn" ] 
             [ Html.text "Reset Settings" ]
-        , downloadStatus model.downloading ]
+        , downloadStatus model.downloadStatus ]
 
 
 settingsView : Model -> Html Msg

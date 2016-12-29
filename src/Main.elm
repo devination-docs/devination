@@ -21,6 +21,7 @@ subscriptions model =
         , downloadResult DownloadResult
         , removeDocsetResult RemoveDocsetResult
         , settingsResult SettingsResult
+        , extractionStart ExtractionStart
         ]
 
 
@@ -45,7 +46,7 @@ defaultModel =
     , isSettingsView = False
     , showSpinner = False
     , error = ""
-    , downloading = False
+    , downloadStatus = DownloadStatus NoDownload ""
     , settings = Nothing
     }
 
@@ -80,7 +81,6 @@ toDownloadUrl m l =
             Custom a ->
                 ""
 
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -96,6 +96,9 @@ update msg model =
         UpdateSelectedLanguage l ->
             ( { model | language = Just l, cache = [] }, Cmd.none )
 
+        ExtractionStart l ->
+            ( { model | downloadStatus = DownloadStatus Extraction l }, Cmd.none )
+
         Search t ->
             case model.language of
                 Just l ->
@@ -108,7 +111,7 @@ update msg model =
             ( { model | filteredAvailableLanguages = List.filter (\x -> startsWith (toLower t) (toLower x.name)) model.availableLanguages }, Cmd.none )
 
         Download l ->
-            ( { model | downloading = True }, download (l.name, toDownloadUrl model l, l.icon, l.icon2x) )
+            ( { model | downloadStatus = DownloadStatus Downloading l.name }, download (l.name, toDownloadUrl model l, l.icon, l.icon2x) )
 
         RemoveDocset l ->
             ( model, removeDocset l.fsName )
@@ -127,7 +130,7 @@ update msg model =
                 ns = Maybe.map (\settings -> { settings | installedLanguages = m::settings.installedLanguages }) s
                 nm = { model | settings = ns }
             in 
-                ({ nm | downloading = False}, setSettings nm.settings )
+                ({ nm | downloadStatus = DownloadStatus NoDownload "" }, setSettings nm.settings )
 
         UpdateAvailableLanguages lss ->
             let
