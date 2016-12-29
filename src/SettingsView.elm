@@ -60,6 +60,7 @@ availableLanguageView m a =
                 ++ text "Older versions:"
                 :: List.map (\x -> text <| ", " ++ x) (Maybe.withDefault [] a.versions)
             )
+        , downloadStatus m.downloadStatus a
         ]
 
 
@@ -112,13 +113,16 @@ topBar model =
             ]
         ]
 
-downloadStatus s = 
-    case s.action of
-        Downloading -> 
-            Html.text ("Downloading " ++ s.language ++ "...")
-        Extraction -> 
-            Html.text ("Extracting " ++ s.language ++ "...")
-        NoDownload -> Html.text ""
+downloadStatus s a = 
+    if s.language == a.name then
+        case s.action of
+            Downloading -> 
+                Html.text ("Downloading " ++ s.language ++ "...")
+            Extraction -> 
+                Html.text ("Extracting " ++ s.language ++ "...")
+            NoDownload -> Html.text ""
+    else
+        Html.text ""
 
 
 feedsView : Model -> Html Msg
@@ -128,8 +132,7 @@ feedsView model =
         [ button 
             [ Html.Events.onClick ResetSettings, Html.Attributes.class "btn" ] 
             [ Html.text "Reset Settings" ]
-        , downloadStatus model.downloadStatus ]
-
+        ]
 
 settingsView : Model -> Html Msg
 settingsView model =

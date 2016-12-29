@@ -44,9 +44,12 @@
     "electron-auto-updater": "^0.8.5",
     "electron-settings": "^2.2.2",
     "materialize-css": "^0.97.8",
+    "node-uuid": "^1.4.7",
     "request": "^2.79.0",
     "sql.js": "^0.4.0",
-    "tar.gz": "git://github.com/JorisM/node-tar.gz.git#patch-1"
+    "temp": "^0.8.3",
+    "wget": "*",
+    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master#3.15.0"
   },
   "build": {
     "app-id": "com.electron.devination-app",
