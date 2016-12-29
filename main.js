@@ -7,6 +7,7 @@ const os = require('os');
 const WebContents = electron.WebContents
 // Open devtools with F12
 const remote = electron.remote;
+const {ipcMain} = require('electron')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -15,8 +16,11 @@ let win;
 app.setAsDefaultProtocolClient('devination')
 
 app.on('open-url', function (event, url) {
-  dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
-})
+  if(win)
+  {
+    win.webContents.send('external-link' , {msg: url});
+  }
+});
 
 function createWindow() {
   // Create the browser window.
@@ -30,12 +34,10 @@ function createWindow() {
   })
 
   win.on('uncaughtException', function (error) {
-    console.log("asdfasdfasdfasdf", error);
     dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + error }, function (buttonIndex) { });
   });
 
   app.on('uncaughtException', function (error) {
-    console.log("asdfasdfasdfasdf", error);
     dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + error }, function (buttonIndex) { });
   });
 

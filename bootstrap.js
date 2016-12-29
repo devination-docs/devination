@@ -19,7 +19,6 @@ var exec = require('child_process').exec;
 var temp = require('temp');
 var util  = require('util');
 var os = require('os');
-const {ipcRenderer} = require('electron')
 //autoremove temp files on exit
 temp.track();
 
@@ -53,7 +52,7 @@ let container = document.getElementById('container')
 // and keep a reference for communicating with the app
 let devination = Elm.Main.fullscreen();
 
-ipcRenderer.on('info' , function(event , data){ console.log(data.msg) });
+ipcRenderer.on('external-link' , function(event , data){ console.log(data.msg) });
 
 devination.ports.showError.subscribe(function (error) {
     dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + error }, function (buttonIndex) { });
