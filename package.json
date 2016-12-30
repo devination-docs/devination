@@ -1,6 +1,6 @@
 {
   "name": "devination",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "a cross plattform offline documentation browser",
   "productName": "devination",
   "main": "main.js",
@@ -35,7 +35,7 @@
     "chokidar": "^1.6.1",
     "chokidar-cli": "^1.2.0",
     "electron": "^1.4.13",
-    "electron-builder": "^10.13.1",
+    "electron-builder": "^10.15.1",
     "electron-packager": "^8.4.0",
     "electron-rebuild": "^1.4.0",
     "electron-settings": "^2.2.2"

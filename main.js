@@ -8,19 +8,37 @@ const WebContents = electron.WebContents
 // Open devtools with F12
 const remote = electron.remote;
 const {ipcMain} = require('electron')
+var exec = require('child_process').exec;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 
-app.setAsDefaultProtocolClient('devination')
-
-app.on('open-url', function (event, url) {
-  if(win)
-  {
-    win.webContents.send('external-link' , {msg: url});
+var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
+  // Someone tried to run a second instance, we should focus our window
+  if (win) {
+    if (win.isMinimized()) win.restore();
+    win.focus();
   }
+  return true;
 });
+
+if (shouldQuit) {
+  app.quit();
+  return;
+}
+
+app.setAsDefaultProtocolClient('devination');
+
+if(os.platform() == "linux") {
+  var execute = function(command, callback){
+      exec(command, function(error, stdout, stderr){ callback(stdout); });
+  };
+
+  execute('xdg-mime default devination-app.desktop x-scheme-handler/devination', function(output) {
+      console.log(output);
+  });
+}
 
 function createWindow() {
   // Create the browser window.
@@ -40,7 +58,16 @@ function createWindow() {
   app.on('uncaughtException', function (error) {
     dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + error }, function (buttonIndex) { });
   });
-
+  
+  app.on('open-url', function (event, url) {
+    event.preventDefault();
+    app.quit();
+    win.webContents.send('external-link', {msg: url});
+  });
+  app.on('open-file', function (event, url) {
+    event.preventDefault();
+    win.webContents.send('external-link', {msg: url});
+  });
 
   new AppUpdater(win)
 
@@ -59,6 +86,7 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

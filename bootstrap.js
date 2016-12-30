@@ -52,7 +52,10 @@ let container = document.getElementById('container')
 // and keep a reference for communicating with the app
 let devination = Elm.Main.fullscreen();
 
-ipcRenderer.on('external-link' , function(event , data){ console.log(data.msg) });
+ipcRenderer.on('external-link', function(event , data) { 
+    console.log(data);
+    devination.ports.externalSearch(data);
+});
 
 devination.ports.showError.subscribe(function (error) {
     dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + error }, function (buttonIndex) { });

@@ -2,10 +2,21 @@ main {
     margin-left: 255px;
 }
 
+/*body header {
+  height: 60px;
+}
+body header .navbar-fixed{
+  height: 60px;
+}
+
+.navbar-fixed .top-nav {
+  height: 60px;
+}*/
+
 webview {
     display:inline-flex;
     min-width:100%;
-    min-height:91%;
+    min-height:90%;
 }
 
 .side-nav .search input {
