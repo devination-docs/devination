@@ -7,6 +7,7 @@ const WebContents = electron.WebContents
 const {ipcMain} = require('electron')
 var exec = require('child_process').exec;
 var readline = require('readline');
+const settings = require('electron-settings');
 
 var rl = readline.createInterface({
     input: process.stdin,
@@ -15,18 +16,26 @@ var rl = readline.createInterface({
 
 var interactive = process.argv.find(function(e){ return e === "--interactive"});
 if(interactive && interactive.length > 0) {
-  var process = require('process');
-  var searcher = require('./search.js');
-  var recursiveAsyncReadLine = function () {
-    rl.question('Browse: ', function (answer) {
-        if (answer == 'exit') //we need some base case, for recursion
-            return rl.close(); //closing RL and returning from function.
-        searcher.search(true, app.getPath('userData'), "5f553ae0-ce9c-11e6-bd76-ab0cad4bacb3/Haskell.docset", answer, function(s) {console.log(s[0])});
-        recursiveAsyncReadLine(); //Calling this function again to ask new question
+  settings.get().then(val => {
+    var langs = val.installedLanguages;
+    var process = require('process');
+    var searcher = require('./search.js');
+    var lang = "";
+    langs.map(function(el, i) { console.log(i, el.name)});
+    rl.question('Choose Language: ', function (answer) {
+      lang = val.installedLanguages[answer].fsName
+      var recursiveAsyncReadLine = function () {
+        rl.question('Browse: ', function (answer) {
+            if (answer == 'exit') //we need some base case, for recursion
+                return rl.close();
+            searcher.search(true, app.getPath('userData'), lang, answer, function(s) {console.log(s[0])});
+            recursiveAsyncReadLine(); //Calling this function again to ask new question
+        });
+      };
+      recursiveAsyncReadLine();
     });
-  };
-  recursiveAsyncReadLine();
-
+    
+  });
 } else {
 
   // Keep a global reference of the window object, if you don't, the window will
