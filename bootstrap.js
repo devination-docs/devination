@@ -19,32 +19,26 @@ var exec = require('child_process').exec;
 var temp = require('temp');
 var util  = require('util');
 var os = require('os');
+var search = require('./search.js');
 //autoremove temp files on exit
 temp.track();
 
-if (os.platform() === "linux") {
-    var sqlite3 = require("sqlite3");
-} else {
-    var SQL = require('sql.js');
-}
 
-function getDB(l) {
-    var language = path.normalize(l).replace(/^(\.\.[\/\\])+/, '')
-    var file = path.join(app.getPath('userData'), "/docsets/" + language + "/Contents/Resources/docSet.dsidx");
-    var exists = fs.existsSync(file);
-    if (exists) {
-        if(SQL === undefined) {
-            return new sqlite3.Database(file);
-        }else {
-            var filebuffer = fs.readFileSync(file);
-            return new SQL.Database(filebuffer);
-        }
-    } else {
-        //oh shit, todo: handle this
-        console.log('couldnt open database file: ' + file);
-        return null;
-    }
-}
+app.on('open-url', function (event, url) {
+    event.preventDefault();
+    console.log("open ur", url);
+    //   win.webContents.send('external-link', {msg: url});
+    // win.webContents.send('external-link', {msg: url});
+    devination.ports.externalSearch(url);
+});
+
+app.on('open-file', function (event, url) {
+    event.preventDefault();
+    // win.webContents.send('external-link', {msg: url});
+    devination.ports.externalSearch(url);
+
+});
+
 // get a reference to the div where we will show our UI
 let container = document.getElementById('container')
 
@@ -52,10 +46,10 @@ let container = document.getElementById('container')
 // and keep a reference for communicating with the app
 let devination = Elm.Main.fullscreen();
 
-ipcRenderer.on('external-link', function(event , data) { 
-    console.log(data);
-    devination.ports.externalSearch(data);
-});
+// ipcRenderer.on('external-link', function(event , data) { 
+//     console.log(data);
+//     devination.ports.externalSearch(data);
+// });
 
 devination.ports.showError.subscribe(function (error) {
     dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + error }, function (buttonIndex) { });
@@ -65,77 +59,8 @@ devination.ports.search.subscribe(function (options) {
     var cb = function (result) {
         devination.ports.searchResult.send(result);
     };
-    var searchResult = getCache(options[0], options[1], cb);
+    var searchResult = search.search(false, app.getPath('userData'), options[0], options[1], cb);
 });
-
-var getCache = null;
-if (os.platform() === "linux") {
-    getCache = function(language, term, cb) {
-        var db = getDB(language);
-        if (term.length > 2) {
-            db.serialize(function () {
-                var cache = [];
-                var query = "";
-                db.get("SELECT count(*) as zdash FROM sqlite_master WHERE type='table' AND name='searchIndex'", [], function (err, s) {
-                    if(err !== null) {
-                    dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + err }, function (buttonIndex) { });
-                    }
-                    if (!s.zdash) {
-                        query = "SELECT ztoken.ztokenname as name, ztokentype.ztypename as kind, zfilepath.zpath as path, ztokenmetainformation.zanchor as id "
-                            + "FROM ztoken "
-                            + "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                            + "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                            + "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
-                            + "WHERE zfilepath.zpath LIKE \"%" + term + "%\" AND ztokenmetainformation.zanchor IS NOT NULL";
-                    } else {
-                        query = "SELECT cast(id as text) as id, name, path, type as kind FROM searchIndex where name LIKE '%" + term + "%'"
-                    }
-                    var t = db.all(query, function (err, row) {
-                        if (err !== null) { console.log("error query: ", err); }
-                        if (row !== undefined) { cb(row) };
-                    });
-                });
-            });
-        }
-    }
-} else {
-    var getCache = function (language, term, cb) {
-        var db = getDB(language);
-        if (term.length > 2 && term.length % 2 == 0) {
-            var cache = [];
-            var query = "";
-            var s = db.exec("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='searchIndex'");
-            // if(err !== null) {
-            //     dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + err }, function (buttonIndex) { });
-            // }
-            if (!s[0]['values'][0][0]) {
-                // query = "SELECT ztokenmetainformation.zanchor as id, ztoken.ztokenname as name, ztokentype.ztypename as kind, zfilepath.zpath as path"
-                query = "SELECT ztokenmetainformation.zanchor as id, ztoken.ztokenname as name, zfilepath.zpath as path "
-                    + "FROM ztoken "
-                    + "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                    + "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                    + "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
-                    + "WHERE zfilepath.zpath LIKE '%" + term + "%' AND ztokenmetainformation.zanchor IS NOT NULL LIMIT 50";
-            } else {
-                // query = "SELECT cast(id as text) as id, name, path, type as kind FROM searchIndex where name LIKE '%" + term + "%'"
-                query = "SELECT cast(id as text) as id, name, path FROM searchIndex where name LIKE '%" + term + "%' LIMIT 50"
-            }
-            var t = db.exec(query);
-            if(t[0]) {
-                cb(t[0]['values'].map(function(x){ 
-                    return { 
-                        "id" : x[0],
-                        "name" : x[1],
-                        "path" : x[2]
-                        // , "kind" : x[3]
-                    } 
-                }));
-            }else {
-                cb([]);
-            } 
-        }
-    }
-}
 
 var extractTarball = function (sourceFile, destination, callback) {
   if( /(gz|tgz)$/i.test(sourceFile)) {
@@ -185,9 +110,9 @@ devination.ports.download.subscribe(function (info) {
     var destination = path.join(app.getPath('userData'), "/docsets/", uuid_file);
 
     var cb = function (err, result) {
-        console.log("result", result);
         if (err) {
-            dialog.showMessageBox({ type: 'info', buttons: ['Report', 'Cancel'], message: "An error has occured: " + result['error'] }, function (buttonIndex) { });
+            dialog.showMessageBox({ type: 'info', buttons: [], message: "An error has occured: " + result['error'] }, function (buttonIndex) { });
+            app.relaunch();
             return;
         }
         var s = 
@@ -197,7 +122,6 @@ devination.ports.download.subscribe(function (info) {
             , icon: info[2]
             , icon2x: info[3]
             }
-        console.log(s);
         devination.ports.downloadResult.send(s);
     };
     var tempName = temp.path({suffix: ".tar.gz"});
