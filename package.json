@@ -1,6 +1,6 @@
 {
   "name": "devination",
-  "version": "0.0.4",
+  "version": "0.0.3",
   "description": "a cross plattform offline documentation browser",
   "productName": "devination",
   "main": "main.js",
@@ -43,18 +43,19 @@
   "dependencies": {
     "electron-auto-updater": "^0.8.5",
     "electron-settings": "^2.2.2",
+    "electron-squirrel-startup": "^1.0.0",
     "materialize-css": "^0.97.8",
     "node-uuid": "^1.4.7",
     "request": "^2.79.0",
     "sql.js": "^0.4.0",
+    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master#3.15.0",
     "temp": "^0.8.3",
-    "wget": "*",
-    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master#3.15.0"
+    "wget": "*"
   },
   "build": {
     "app-id": "com.electron.devination-app",
     "category": "public.app-category.developers",
-    "dmg": {
+    "mas": {
       "contents": [
         {
           "x": 110,
@@ -72,12 +73,20 @@
       ]
     },
     "win": {
-      "iconUrl": "http://eatodo.s3.amazonaws.com/icon.ico",
+      "target": "squirrel"
+    },
+    "squirrelWindows": {
+      "appId": "com.electron.devination-app",
+      "useAppIdAsId": true,
+      "iconUrl": "https://raw.githubusercontent.com/megahertz/electron-simple-updater/master/example/build/icon.ico",
       "publish": [
-        "github"
-      ]
+        "generic",
+        "https://devination-releases.herokuapp.com/updates/win32/"
+      ],
+      "msi": true
     },
     "linux": {
+      "app-id": "com.electron.devination-app",
       "target": [
         "AppImage",
         "deb",

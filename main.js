@@ -1,6 +1,8 @@
+if(require('electron-squirrel-startup')) return;
 const electron = require('electron');
 // Module to control application life.
-const {app, globalShortcut, autoUpdater, dialog} = require('electron')
+const {app, globalShortcut, dialog} = require('electron')
+const {autoUpdater} = require("electron-auto-updater")
 // Module to create native browser window.
 const {BrowserWindow} = electron;
 const os = require('os');
@@ -27,6 +29,8 @@ if (shouldQuit) {
   app.quit();
   return;
 }
+
+
 
 app.setAsDefaultProtocolClient('devination');
 
@@ -108,7 +112,7 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
-const UPDATE_SERVER_HOST = "https://devination-releases.herokuapp.com/"
+const UPDATE_SERVER_HOST = "devination-releases.herokuapp.com"
 
 class AppUpdater {
   constructor(window) {
@@ -123,22 +127,25 @@ class AppUpdater {
 
     const version = app.getVersion()
     autoUpdater.addListener("update-available", (event) => {
-      log("A new update is available")
+      notify("A new update is available")
     })
     autoUpdater.addListener("update-downloaded", (event, releaseNotes, releaseName, releaseDate, updateURL) => {
       notify("A new update is ready to install", `Version ${releaseName} is downloaded and will be automatically installed on Quit`)
     })
     
     autoUpdater.addListener("error", (error) => {
-      log(error)
+      notify("error", error)
     })
-    autoUpdater.addListener("checking-for-update", (event) => {
-      log("checking-for-update")
+    autoUpdater.addListener("checking for-update", (event) => {
+      notify("checking-for-update", `you are currently running ${version}`)
     })
     autoUpdater.addListener("update-not-available", () => {
-      log("update-not-available")
+      // notify("update not available", "you are using the latest version")
     })
-    autoUpdater.setFeedURL(`https://${UPDATE_SERVER_HOST}/update/${os.platform()}_${os.arch()}/${version}`)
+    if(os.platform() !== "win32") {
+      autoUpdater.setFeedURL(`https://${UPDATE_SERVER_HOST}/update/${os.platform()}_${os.arch()}/${version}`)
+    } else {
+    }
 
     window.webContents.once("did-frame-finish-load", (event) => {
       autoUpdater.checkForUpdates()
