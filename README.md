@@ -42,3 +42,7 @@ make your have the following folders in the root of the project:
 once: `npm i -g chokidar-cli`
 
 `npm run watch`
+
+
+## Headless/interactive
+devination --interactive

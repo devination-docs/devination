@@ -8,24 +8,36 @@ const {ipcMain} = require('electron')
 var exec = require('child_process').exec;
 var readline = require('readline');
 const settings = require('electron-settings');
+var args = require('args');
 
 var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
-var interactive = process.argv.find(function(e){ return e === "--interactive"});
-if(interactive && interactive.length > 0) {
+args
+  .option('interactive', 'interactive mode')
+  .option('headless', 'headless mode (needs parameters --language and --query)')
+  .option('query', 'query (needed in combination with --headless)')
+  .option('language', 'language (needed in combination with --headless)')
+
+var flags = {};
+if(process.argv === undefined || process.argv === null) {
+  flags = args.parse('')
+} else {
+  flags = args.parse(process.argv);
+}
+if(flags.interactive) {
   settings.get().then(val => {
     var langs = val.installedLanguages;
     var process = require('process');
     var searcher = require('./search.js');
     var lang = "";
     langs.map(function(el, i) { console.log(i, el.name)});
-    rl.question('Choose Language: ', function (answer) {
+    rl.question('', function (answer) {
       lang = val.installedLanguages[answer].fsName
       var recursiveAsyncReadLine = function () {
-        rl.question('Browse: ', function (answer) {
+        rl.question('', function (answer) {
             if (answer == 'exit') //we need some base case, for recursion
                 return rl.close();
             searcher.search(true, app.getPath('userData'), lang, answer, function(s) {console.log(s[0])});
@@ -34,7 +46,32 @@ if(interactive && interactive.length > 0) {
       };
       recursiveAsyncReadLine();
     });
-    
+  });
+} else if(flags.headless) {
+  settings.get().then(val => {
+    var langs = val.installedLanguages;
+    var process = require('process');
+    var searcher = require('./search.js');
+    if(!flags.language) {
+      console.log("please provide an installed language with --language");
+      return;
+    }
+    var lang = null;
+    var filtered = langs.filter(function(l){ return (l['name'].toLowerCase() == flags.language); });
+    if(filtered.length == 0) {
+      console.log("please provide an installed language with --language");
+      process.exit(2);
+    }else {
+      lang = filtered[0].fsName
+    }
+    if(!flags.query) {
+      console.log("please provide a query with --query");
+    }
+    searcher.search(true, app.getPath('userData'), lang, flags.query, function(s) {
+      // currently only
+      console.log(s);
+      process.exit(0);
+    });
   });
 } else {
 
@@ -63,14 +100,15 @@ if(interactive && interactive.length > 0) {
         exec(command, function(error, stdout, stderr){ callback(stdout); });
     };
 
-    execute('xdg-mime default devination-app.desktop x-scheme-handler/devination', function(output) {
+    // devination://test
+    execute('xdg-mime default devination.desktop x-scheme-handler/devination', function(output) {
         console.log(output);
     });
   }
 
   function createWindow() {
     // Create the browser window.
-    win = new BrowserWindow({ width: 1400, height: 900, frame: false });
+    win = new BrowserWindow({ width: 1400, height: 900, frame: true });
 
     // and load the index.html of the app.
     win.loadURL(`file://${__dirname}/index.html`);

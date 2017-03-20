@@ -34,7 +34,7 @@ function getDB(headless, basePath, l) {
 }
 
 function search(headless, basePath, language, term, cb) {
-    if (os.platform() === "darwin" || os.platform() === "win32" || headless) {
+    if (os.platform() === "darwin" || os.platform() === "win32") {
         var db = getDB(headless, basePath, language);
         if (term.length > 2 && term.length % 2 == 0) {
             var cache = [];
@@ -67,7 +67,7 @@ function search(headless, basePath, language, term, cb) {
             }
         }
     } else {
-        var db = getDB(basePath, language);
+        var db = getDB(false, basePath, language);
         if (term.length > 2) {
             db.serialize(function () {
                 var cache = [];
@@ -86,14 +86,12 @@ function search(headless, basePath, language, term, cb) {
                     } else {
                         query = "SELECT cast(id as text) as id, name, path, type as kind FROM searchIndex where name LIKE '%" + term + "%'"
                     }
-                    console.log(query);
                     var t = db.all(query, function (err, row) {
                         if (err !== null) { console.log("error query: ", err); }
                         if (row !== undefined) { cb(row) };
                     });
                 });
             });
-            db.close();
         }
     }
 }

@@ -26,7 +26,7 @@ temp.track();
 
 app.on('open-url', function (event, url) {
     event.preventDefault();
-    console.log("open ur", url);
+    console.log("open url", url);
     //   win.webContents.send('external-link', {msg: url});
     // win.webContents.send('external-link', {msg: url});
     devination.ports.externalSearch(url);
@@ -34,6 +34,7 @@ app.on('open-url', function (event, url) {
 
 app.on('open-file', function (event, url) {
     event.preventDefault();
+    console.log('open file', url);
     // win.webContents.send('external-link', {msg: url});
     devination.ports.externalSearch(url);
 
