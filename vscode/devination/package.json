@@ -49,6 +49,7 @@
     "@types/mocha": "^2.2.32"
   },
   "dependencies": {
+    "cheerio": "^0.22.0",
     "cross-spawn": "^5.1.0",
     "file-url": "^2.0.2",
     "mac-open": "^0.1.3",

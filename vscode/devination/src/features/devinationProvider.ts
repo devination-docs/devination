@@ -5,29 +5,26 @@ import * as cp from 'child_process';
 import ChildProcess = cp.ChildProcess;
 import * as vscode from 'vscode';
 import Url from 'vscode-uri'
-import fileUrl = require("file-url");
+// import fileUrl = require("file-url");
 import {
     workspace, window, commands, TextDocumentContentProvider,
     Event, Uri, TextDocumentChangeEvent, ViewColumn, EventEmitter,
     TextDocument, Disposable
 } from "vscode";
 
-import open from 'open';
-import open_mac from 'mac-open';
-
-// decide what os should be used
-// possible node values 'darwin', 'freebsd', 'linux', 'sunos' or 'win32'
-let platform = process.platform;
 
 export default class DevinationProvider implements vscode.CodeActionProvider {
 
 	private static commandId: string = 'extension.devination';
 	private command: vscode.Disposable;
 	private diagnosticCollection: vscode.DiagnosticCollection;
-	// private provider: HtmlDocumentContentProvider;
+	private provider: DevinationDocumentContentProvider;
 
 	public activate(subscriptions: vscode.Disposable[]) {
 		this.command = vscode.commands.registerCommand(DevinationProvider.commandId, this.runCodeAction, this);
+		this.provider = new DevinationDocumentContentProvider();
+		let registration = vscode.workspace.registerTextDocumentContentProvider('devination', this.provider);
+		subscriptions.push(this.command, registration);
 	}
 
 	public dispose(): void {
@@ -38,28 +35,12 @@ export default class DevinationProvider implements vscode.CodeActionProvider {
 
 	public provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken): vscode.Command[] {
 		let diagnostic:vscode.Diagnostic = context.diagnostics[0];
-		// this.provider = new HtmlDocumentContentProvider(document);
 
 		return [{
 			title: "Search in devination",
 			command: DevinationProvider.commandId,
 			arguments: [document, diagnostic.range, diagnostic.message]
 		}];
-	}
-
-
-	private openHtml(e: string) {
-		let es = path.extname(e.toString());
-		if (/^\.(html|htm|shtml|xhtml)$/.test(es)) {
-			if (platform === 'darwin') {
-				open_mac(e);
-			}
-			else {
-				open(e);
-			}
-		} else {
-			vscode.window.showInformationMessage('Supports html file only!');
-		}
 	}
 
 	private runCodeAction(document: vscode.TextDocument, range: vscode.Range, message:string): any {
@@ -84,9 +65,13 @@ export default class DevinationProvider implements vscode.CodeActionProvider {
 			devination.stdout.on('end', function (data) {
 				let item = JSON.parse(result)[0];
 				if(item){
-					let path = 'file://' + item['basePath'] + 'Documents/' + item['path'];
+					let path = 'devination://' + item['basePath'] + 'Documents/' + item['path'];
 					let uri = Uri.parse(path);
-					let success = commands.executeCommand('vscode.previewHtml', uri, vscode.ViewColumn.Two);
+					that.provider.update(uri);
+					vscode.commands.executeCommand('vscode.previewHtml', uri, vscode.ViewColumn.Two, 'Devination').then((success) => {
+						}, (reason) => {
+							vscode.window.showErrorMessage(reason);
+						});
 				}else {
 					vscode.window.showErrorMessage("Term not found");
 				}
@@ -95,18 +80,6 @@ export default class DevinationProvider implements vscode.CodeActionProvider {
 			devination.stderr.on('data', function (data) {
 				console.log(data.toString());
 			});
-				// 	['.', '--help'],
-				// 	{ shell: true
-				// 	},
-				// 	(error, stdout, stderr) => {
-				// 	if (error) {
-				// 		console.error('stderr', stderr);
-				// 		console.error(error);
-				// 	}
-				// 	console.log('stdout', stdout);
-				// });
-
-
 		} else {
 			vscode.window.showErrorMessage("Could not search for empty term");
 		}
@@ -114,76 +87,56 @@ export default class DevinationProvider implements vscode.CodeActionProvider {
 }
 
 
-// class HtmlDocumentContentProvider implements TextDocumentContentProvider {
-//     private _onDidChange = new EventEmitter<Uri>();
-//     private doc: TextDocument;
+class DevinationDocumentContentProvider implements TextDocumentContentProvider {
 
-//     constructor(document: TextDocument) {
-//         this.doc = document;
-//     }
+		private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
 
-//     public provideTextDocumentContent(uri: Uri): string {
-//         return this.createHtmlSnippet();
-//     }
+		public provideTextDocumentContent(uri: vscode.Uri): Thenable<string> {
+			return this.showDocs(uri);
+		}
 
-//     get onDidChange(): Event<Uri> {
-//         return this._onDidChange.event;
-//     }
+		get onDidChange(): vscode.Event<vscode.Uri> {
+			return this._onDidChange.event;
+		}
 
-//     public update(uri: Uri) {
-//         this._onDidChange.fire(uri);
-//     }
+		public update(uri: vscode.Uri) {
+			// this._onDidChange.fire(uri);
+			this.showDocs(uri);
+		}
 
-//     private createHtmlSnippet(): string {
-//         if (this.doc.languageId !== "html") {
-//             return this.errorSnippet("Active editor doesn't show a HTML - no properties to preview.");
-//         }
-//         return this.preview();
-//     }
+		private showDocs(uri: Uri): Thenable<string> {
+			let editor = vscode.window.activeTextEditor;
+			let text = editor.document.getText();
 
-//     private errorSnippet(error: string): string {
-//         return `
-//                 <body>
-//                     ${error}
-//                 </body>`;
-//     }
+			// if (false) {
+			// 	return this.errorSnippet("Cannot determine the rule's properties.");
+			// } else {
+			return this.snippet(editor.document, uri);
+			// }
+		}
 
-//     private createLocalSource(file: string, type: string) {
-//         let source_path = fileUrl(
-//             path.join(
-//                 __dirname,
-//                 "..",
-//                 "..",
-//                 "static",
-//                 file
-//             )
-//         );
-//         switch (type) {
-//             case "SCRIPT":
-//                 return `<script src="${source_path}"></script>`;
-//             case "STYLE":
-// 		return `<link href="${source_path}" rel="stylesheet" />`;
-//         }
-//     }
+		private errorSnippet(error: string): string {
+			return `
+				<body>
+					${error}
+				</body>`;
+		}
 
-//     private fixLinks(): string {
-//         return this.doc.getText().replace(
-//             new RegExp("((?:src|href)=[\'\"])((?!http|\\/).*?)([\'\"])", "gmi"),
-//             (subString: string, p1: string, p2: string, p3: string): string => {
-//                 return [
-//                     p1,
-//                     fileUrl(path.join(
-//                         path.dirname(this.doc.fileName),
-//                         p2
-//                     )),
-//                     p3
-//                 ].join("");
-//             }
-//         );
-//     }
-
-//     public preview(): string {
-//         return this.createLocalSource("header_fix.css", "STYLE") +
-//             this.fixLinks();
-//     }
-// }
+		private snippet(document: vscode.TextDocument, uri: Uri): Thenable<string> {
+			let path = uri.path;
+			let fragment = uri.fragment;
+			let that = this;
+			return vscode.workspace.openTextDocument(path)
+					.then((document) => {
+							let dom = document.getText();
+							let cheerio = require('cheerio');
+							let $ = cheerio.load(dom, { xmlMode: true, lowerCaseTags: true });
+							let section = $;
+							if(fragment.length > 0){
+								section = $('[name="'+fragment+'"]').parent();
+							}
+							let text = section.html();
+							return text.toString();
+						});
+		}
+}
