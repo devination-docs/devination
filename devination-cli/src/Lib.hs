@@ -92,9 +92,7 @@ main = search =<< execParser opts
      <> progDesc "devination cli"
      <> header "headless devination - cli usage" )
 
-query1 = "SELECT cast(id as text) as id, name, path FROM searchIndex where name LIKE ? LIMIT 50"
--- todo: get this from devination config
-
+query1 = "SELECT cast(id as text) as id, name, path FROM searchIndex where name LIKE ? LIMIT 20"
 
 basePathLiteral homePath = homePath ++ "/.config/devination/Settings"
 
@@ -110,18 +108,19 @@ getJSON = B.readFile . jsonFile
 
 
 search :: CLIDevinationConfig -> IO ()
-search (CLIDevinationConfig language devinationQuery) = do
+search (CLIDevinationConfig language userQuery) = do
   homePath <- getHomeDirectory
   config <- (eitherDecode <$> getJSON homePath) :: IO (Either String DevinationConfig)
   case config of
-    Left error ->
-      putStrLn $ "while decoding devination config file " ++ (basePathLiteral homePath) ++ ": " ++ error
-    Right devinationConfig ->
-      case List.filter (\x -> (map toLower (configName x)) == (map toLower language)) $ installedLanguages devinationConfig of
+    Left err ->
+      putStrLn $ "while decoding devination config file " ++ (basePathLiteral homePath) ++ ": " ++ err
+    Right dConfig ->
+      case List.filter (\x -> (map toLower (configName x)) == (map toLower language)) $ installedLanguages dConfig of
         [selectedLanguage] -> do
-          conn <- open $ (devinationDocsetsPath homePath) ++ (configFsName selectedLanguage) ++ deepPathExtension ++ "docSet.dsidx"
-          r <- query conn query1 (Only (devinationQuery :: String)) :: IO [DevinationRow]
-          Prelude.putStrLn $ BSL.unpack $ encode (fmap (\x -> DevinationResult (devinationId x) (devinationId x) (devinationPath x) ((basePathLiteral homePath) ++ deepPathExtension)) r)
+          let deepPath =  (devinationDocsetsPath homePath) ++ (configFsName selectedLanguage) ++ deepPathExtension
+          conn <- open $ deepPath ++ "docSet.dsidx"
+          r <- query conn query1 (Only userQuery) :: IO [DevinationRow]
+          Prelude.putStrLn $ BSL.unpack $ encode $ fmap (\x -> DevinationResult (devinationId x) (devinationName x) (devinationPath x) deepPath) r
           close conn
         -- todo: improve error message
         _ -> putStrLn "err language not found in config"
