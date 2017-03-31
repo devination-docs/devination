@@ -4,8 +4,9 @@ import * as path from 'path';
 import * as cp from 'child_process';
 import ChildProcess = cp.ChildProcess;
 import * as vscode from 'vscode';
-import Url from 'vscode-uri'
-// import fileUrl = require("file-url");
+import Url from 'vscode-uri';
+import * as cheerio from 'cheerio';
+
 import {
     workspace, window, commands, TextDocumentContentProvider,
     Event, Uri, TextDocumentChangeEvent, ViewColumn, EventEmitter,
@@ -63,11 +64,11 @@ export default class DevinationProvider implements vscode.CodeActionProvider {
 			let that = this;
 
 			devination.stdout.on('end', function (data) {
-				let item = JSON.parse(result)[0];
-				if(item){
-					let path = 'devination://' + item['basePath'] + 'Documents/' + item['path'];
+				let results = JSON.parse(result);
+				if(results){
+					let path = 'devination://' + results[0]['basePath'] + 'Documents/' + results[0]['path'];
 					let uri = Uri.parse(path);
-					that.provider.update(uri);
+					that.provider.update(results, uri);
 					vscode.commands.executeCommand('vscode.previewHtml', uri, vscode.ViewColumn.Two, 'Devination').then((success) => {
 						}, (reason) => {
 							vscode.window.showErrorMessage(reason);
@@ -90,29 +91,25 @@ export default class DevinationProvider implements vscode.CodeActionProvider {
 class DevinationDocumentContentProvider implements TextDocumentContentProvider {
 
 		private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
+		private results = [];
 
 		public provideTextDocumentContent(uri: vscode.Uri): Thenable<string> {
-			return this.showDocs(uri);
+			return this.showDocs(this.results, uri);
 		}
 
 		get onDidChange(): vscode.Event<vscode.Uri> {
 			return this._onDidChange.event;
 		}
 
-		public update(uri: vscode.Uri) {
+		public update(results, uri: vscode.Uri) {
 			// this._onDidChange.fire(uri);
-			this.showDocs(uri);
+			this.results = results;
+			this.showDocs(results, uri);
 		}
 
-		private showDocs(uri: Uri): Thenable<string> {
+		private showDocs(results, uri: Uri): Thenable<string> {
 			let editor = vscode.window.activeTextEditor;
-			let text = editor.document.getText();
-
-			// if (false) {
-			// 	return this.errorSnippet("Cannot determine the rule's properties.");
-			// } else {
-			return this.snippet(editor.document, uri);
-			// }
+			return this.snippet(editor.document, uri, results);
 		}
 
 		private errorSnippet(error: string): string {
@@ -122,21 +119,44 @@ class DevinationDocumentContentProvider implements TextDocumentContentProvider {
 				</body>`;
 		}
 
-		private snippet(document: vscode.TextDocument, uri: Uri): Thenable<string> {
+		private buildResult(result) {
+			let path = result['path'];
+			let name = result['name'];
+			let mFrom = path.split("#")[0].split("/").pop();
+			return "<a href='" + 'html://' + result['basePath'] + 'Documents/' + path.split("#")[0] + "'>"+ name + ": " + mFrom + "</a>";
+		}
+
+		private buildResults(results) {
+			return results.map((result) => { return this.buildResult(result) })
+		}
+
+		//  todo: parse from result
+		private buildCss($, result) {
+			let path = result['path'];
+			let absolutePath = result['basePath'] + 'Documents/' + path.split("#")[0] + "/../"
+			let links = $('link[rel="stylesheet"]').map((i,el) => {
+				let current = $(el).attr('href');
+				return $(el).attr('href', absolutePath + current);
+			})
+			return links.get().join('');
+		}
+
+		private snippet(document: vscode.TextDocument, uri: Uri, results): Thenable<string> {
 			let path = uri.path;
 			let fragment = uri.fragment;
 			let that = this;
 			return vscode.workspace.openTextDocument(path)
 					.then((document) => {
 							let dom = document.getText();
-							let cheerio = require('cheerio');
 							let $ = cheerio.load(dom, { xmlMode: true, lowerCaseTags: true });
 							let section = $;
 							if(fragment.length > 0){
 								section = $('[name="'+fragment+'"]').parent();
 							}
+							let links = this.buildResults(results).join('<br>');
 							let text = section.html();
-							return text.toString();
+							let css = this.buildCss($, results[0]);
+							return css + links + "<hr><br>" +  text.toString();
 						});
 		}
 }
